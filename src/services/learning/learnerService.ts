@@ -25,10 +25,22 @@ export function createFreshLearnerState(userId: string): LearnerProgressState {
     completedCourses: [],
     completedLessons: [],
     completedAssessments: [],
+    completedQuestions: [],
     assessmentStatus: 'not_started',
     roadmapStatus: 'not_generated',
     currentLevel: null,
     skillProficiency: {},
+    topicProgress: {
+      python: 0,
+      numpy: 0,
+      pandas: 0,
+      statistics: 0,
+      sql: 0,
+    },
+    levelProgress: {
+      'lvl-1': 0,
+    },
+    courseProgress: {},
     learningActivity: [],
     achievements: [],
     hoursLogged: 0,
@@ -112,6 +124,20 @@ export function getLearnerState(userId: string): LearnerProgressState {
     const raw = localStorage.getItem(`${STATE_STORAGE_PREFIX}${userId}`);
     if (raw) {
       const state: LearnerProgressState = JSON.parse(raw);
+      if (!state.completedQuestions) state.completedQuestions = [];
+      if (!state.topicProgress) {
+        state.topicProgress = {
+          python: 0,
+          numpy: 0,
+          pandas: 0,
+          statistics: 0,
+          sql: 0,
+        };
+      }
+      if (!state.levelProgress) {
+        state.levelProgress = { 'lvl-1': 0 };
+      }
+      if (!state.courseProgress) state.courseProgress = {};
       return state;
     }
   } catch (err) {
@@ -697,6 +723,26 @@ export function recordAssessmentCompletion(
   assessmentResult.skillEstimates.forEach((se) => {
     state.skillProficiency[se.skill] = se.demonstratedProficiency;
   });
+
+  // Sync Level 1 topic progress
+  state.topicProgress = state.topicProgress || {};
+  state.topicProgress.python = state.skillProficiency['Python'] || 0;
+  state.topicProgress.numpy = state.skillProficiency['NumPy'] || 0;
+  state.topicProgress.pandas = state.skillProficiency['Pandas'] || 0;
+  state.topicProgress.statistics = state.skillProficiency['Statistics'] || 0;
+  state.topicProgress.sql = state.skillProficiency['SQL'] || 0;
+
+  // Calculate Level 1 progress strictly from curriculum weights (20% each)
+  const l1Weighted = Math.round(
+    (state.topicProgress.python * 20 +
+      state.topicProgress.numpy * 20 +
+      state.topicProgress.pandas * 20 +
+      state.topicProgress.statistics * 20 +
+      state.topicProgress.sql * 20) /
+      100
+  );
+  state.levelProgress = state.levelProgress || {};
+  state.levelProgress['lvl-1'] = l1Weighted;
 
   // Log activity
   const act: LearningActivityItem = {

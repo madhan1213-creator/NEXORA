@@ -134,9 +134,9 @@ export const mockCourses: Course[] = [
         title: 'Level 1: Matrix Calculus & Scaled Dot-Product Attention',
         summary: 'Derive Q, K, V projections and understand softmax temperature scaling.',
         modules: [
-          { id: 'mod-1', title: 'Why Dot Product Scales With Dimension', type: 'concept', estimatedMinutes: 20, isCompleted: true },
-          { id: 'mod-2', title: 'Writing Scaled Dot Product in Pure PyTorch', type: 'code_challenge', estimatedMinutes: 35, isCompleted: true },
-          { id: 'mod-3', title: 'Attention Temperature Quiz', type: 'quiz', estimatedMinutes: 15, isCompleted: true },
+          { id: 'mod-1', title: 'Why Dot Product Scales With Dimension', type: 'concept', estimatedMinutes: 20, isCompleted: false },
+          { id: 'mod-2', title: 'Writing Scaled Dot Product in Pure PyTorch', type: 'code_challenge', estimatedMinutes: 35, isCompleted: false },
+          { id: 'mod-3', title: 'Attention Temperature Quiz', type: 'quiz', estimatedMinutes: 15, isCompleted: false },
         ],
       },
       {
@@ -146,7 +146,7 @@ export const mockCourses: Course[] = [
         title: 'Level 2: Multi-Head Splitting & Causal Masking',
         summary: 'Parallelize attention across multiple heads and enforce autoregressive causality.',
         modules: [
-          { id: 'mod-4', title: 'Head Tensor Reshaping Dynamics', type: 'concept', estimatedMinutes: 25, isCompleted: true },
+          { id: 'mod-4', title: 'Head Tensor Reshaping Dynamics', type: 'concept', estimatedMinutes: 25, isCompleted: false },
           { id: 'mod-5', title: 'Implement Causal Lower-Triangular Masking', type: 'code_challenge', estimatedMinutes: 45, isCompleted: false },
           { id: 'mod-6', title: 'Attention Weights Inspection Lab', type: 'interactive_lab', estimatedMinutes: 30, isCompleted: false },
         ],

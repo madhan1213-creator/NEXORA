@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, CheckCircle2, Terminal, HelpCircle, FileText, ArrowRight } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Terminal, HelpCircle, FileText, ArrowRight, Layers } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/hooks/useAuth';
 import { getLearnerState } from '@/services/learning/learnerService';
+import { getLevel1ProgressBreakdown } from '@/services/learning/progressCalculationService';
 import { mockCourses } from '@/data/mockData';
 import { LearnerProgressState } from '@/types/learner';
 
@@ -24,6 +25,15 @@ export const CourseLevelDetailPage: React.FC = () => {
 
   const course = mockCourses.find((c) => c.id === courseId) || mockCourses[0];
   const level = course.levels.find((l) => l.id === levelId) || course.levels[0];
+  const isLevel1 = level.levelNumber === 1 || levelId === 'lvl-1';
+  const level1Report = getLevel1ProgressBreakdown(learnerState?.completedQuestions || []);
+  const levelProgress = isLevel1
+    ? level1Report.percentage
+    : Math.round(
+        (level.modules.filter((m) => learnerState?.completedLessons.includes(m.id)).length /
+          Math.max(1, level.modules.length)) *
+          100
+      );
 
   return (
     <div className="space-y-8 font-sans max-w-4xl mx-auto animate-fadeIn">
@@ -36,15 +46,97 @@ export const CourseLevelDetailPage: React.FC = () => {
         </Link>
       </div>
 
-      <div className="p-6 rounded-2xl bg-white border border-neutral-200 space-y-2 shadow-sm">
-        <Badge variant="brand" className="font-mono text-[10px] uppercase">
-          Level {level.levelNumber} Modules
-        </Badge>
-        <h1 className="text-2xl font-display font-bold text-neutral-950 tracking-tight">
-          {level.title}
-        </h1>
+      <div className="p-6 rounded-2xl bg-white border border-neutral-200 space-y-4 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <Badge variant="brand" className="font-mono text-[10px] uppercase">
+              Level {level.levelNumber} Modules
+            </Badge>
+            <h1 className="text-2xl font-display font-bold text-neutral-950 tracking-tight mt-1">
+              {level.title}
+            </h1>
+          </div>
+          <div className="text-right">
+            <span className="text-2xl font-display font-extrabold text-neutral-900">
+              {levelProgress}%
+            </span>
+            <span className="text-xs font-semibold text-neutral-500 block">Level Progress</span>
+          </div>
+        </div>
+
         <p className="text-sm text-neutral-600 leading-relaxed">{level.summary}</p>
+
+        {/* Progress Bar */}
+        <div className="w-full h-2 bg-neutral-100 rounded-full overflow-hidden">
+          <div
+            className="h-full bg-emerald-500 rounded-full transition-all duration-700"
+            style={{ width: `${levelProgress}%` }}
+          />
+        </div>
       </div>
+
+      {/* If Level 1: Display Required Topics Breakdown */}
+      {isLevel1 && (
+        <div className="p-6 rounded-2xl bg-white border border-neutral-200 space-y-4 shadow-sm">
+          <div className="flex items-center justify-between pb-2 border-b border-neutral-100">
+            <div>
+              <h2 className="text-base font-display font-bold text-neutral-950">
+                Level 1 Required Curriculum Topics
+              </h2>
+              <p className="text-xs text-neutral-500">
+                Calculated from all 5 required Level 1 topics (weighted 20% each). All topics must be completed to achieve 100% Level 1 mastery.
+              </p>
+            </div>
+            <span className="text-xs font-bold text-emerald-700">
+              {level1Report.completedTopics}/{level1Report.totalTopics} Completed
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+            {level1Report.topics.map((t) => (
+              <div
+                key={t.topicId}
+                className={`p-3.5 rounded-xl border transition-all ${
+                  t.isCompleted
+                    ? 'bg-emerald-50/70 border-emerald-200'
+                    : t.percentage > 0
+                    ? 'bg-amber-50/50 border-amber-200'
+                    : 'bg-neutral-50/60 border-neutral-200'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-500">
+                    {t.skill}
+                  </span>
+                  <span
+                    className={`text-xs font-mono font-bold ${
+                      t.isCompleted
+                        ? 'text-emerald-700'
+                        : t.percentage > 0
+                        ? 'text-amber-700'
+                        : 'text-neutral-500'
+                    }`}
+                  >
+                    {t.percentage}%
+                  </span>
+                </div>
+                <div className="text-xs font-bold text-neutral-900 truncate" title={t.topicName}>
+                  {t.topicName}
+                </div>
+                <div className="text-[10px] text-neutral-500 mt-1">
+                  {t.completedQuestions}/{t.totalQuestions} Questions Done
+                </div>
+                <div className="w-full h-1 bg-neutral-200 rounded-full overflow-hidden mt-2">
+                  <div
+                    className="h-full bg-emerald-500 rounded-full transition-all duration-500"
+                    style={{ width: `${t.percentage}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="space-y-4">
         <h2 className="text-base font-display font-bold text-neutral-950">

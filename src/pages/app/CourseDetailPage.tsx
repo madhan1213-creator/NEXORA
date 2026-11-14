@@ -139,6 +139,8 @@ export const CourseDetailPage: React.FC = () => {
   }
 
   const isCurrentLessonCompleted = learnerState?.completedLessons.includes(activeLesson.id);
+  const completedLessonsInCourse = course.lessons.filter((l) => learnerState?.completedLessons.includes(l.id)).length;
+  const coursePercentage = course.lessons.length > 0 ? Math.round((completedLessonsInCourse / course.lessons.length) * 100) : 0;
 
   return (
     <div className="space-y-6 font-sans max-w-6xl mx-auto animate-fadeIn">
@@ -171,17 +173,26 @@ export const CourseDetailPage: React.FC = () => {
 
       {/* Course Overview Header */}
       <div className="p-6 rounded-2xl bg-white border border-neutral-200 shadow-sm space-y-3">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-neutral-900 text-white">
-            {course.difficulty} Module
-          </span>
-          <span className="text-xs text-neutral-500 flex items-center gap-1">
-            <Clock className="w-3.5 h-3.5" /> {course.estimatedHours} Hours Total
-          </span>
-          <span className="text-neutral-300">•</span>
-          <span className="text-xs text-neutral-500 font-medium">
-            {course.lessons.length} Step-by-Step Lessons
-          </span>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-neutral-900 text-white">
+              {course.difficulty} Module
+            </span>
+            <span className="text-xs text-neutral-500 flex items-center gap-1">
+              <Clock className="w-3.5 h-3.5" /> {course.estimatedHours} Hours Total
+            </span>
+            <span className="text-neutral-300">•</span>
+            <span className="text-xs text-neutral-500 font-medium">
+              {course.lessons.length} Step-by-Step Lessons
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold text-neutral-500">Course Progress:</span>
+            <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+              {coursePercentage}%
+            </span>
+          </div>
         </div>
 
         <h1 className="text-2xl sm:text-3xl font-extrabold text-neutral-900 tracking-tight">
@@ -190,6 +201,14 @@ export const CourseDetailPage: React.FC = () => {
         <p className="text-xs sm:text-sm text-neutral-600 max-w-3xl leading-relaxed">
           {course.description}
         </p>
+
+        {/* Course Progress Bar */}
+        <div className="w-full h-1.5 bg-neutral-100 rounded-full overflow-hidden">
+          <div
+            className="h-full bg-emerald-500 rounded-full transition-all duration-700"
+            style={{ width: `${coursePercentage}%` }}
+          />
+        </div>
       </div>
 
       {/* Studio Grid: Lessons Sidebar (4 cols) + Lesson Workspace (8 cols) */}

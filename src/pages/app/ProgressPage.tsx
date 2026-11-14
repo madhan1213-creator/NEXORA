@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/hooks/useAuth';
 import { getLearnerState, getLearnerRoadmap } from '@/services/learning/learnerService';
+import { getLevel1ProgressBreakdown } from '@/services/learning/progressCalculationService';
 import { LearnerProgressState, PersonalizedRoadmap } from '@/types/learner';
 
 export const ProgressPage: React.FC = () => {
@@ -29,6 +30,7 @@ export const ProgressPage: React.FC = () => {
   const progressPct = learnerState?.overallProgress || 0;
   const isDemo = learnerState?.isDemoAccount || false;
   const earnedXP = lessonsDone * 150 + (learnerState?.assessmentStatus === 'completed' ? 500 : 0);
+  const level1Report = getLevel1ProgressBreakdown(learnerState?.completedQuestions || []);
 
   return (
     <div className="space-y-8 font-sans max-w-5xl mx-auto animate-fadeIn">
@@ -108,6 +110,84 @@ export const ProgressPage: React.FC = () => {
             </div>
           </div>
         </Card>
+      </div>
+
+      {/* Level 1 Foundational Progress Breakdown */}
+      <div className="bg-white rounded-2xl border border-neutral-200 p-6 space-y-4 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-neutral-100">
+          <div>
+            <div className="flex items-center gap-2">
+              <Badge variant="brand" className="font-mono text-[10px] uppercase">
+                Curriculum Hierarchy
+              </Badge>
+              <span className="text-xs font-semibold text-neutral-500">
+                {level1Report.completedTopics} of {level1Report.totalTopics} Topics Completed
+              </span>
+            </div>
+            <h3 className="font-bold text-neutral-900 text-lg mt-1">
+              Level 1: Foundations of Scientific Computing & Data
+            </h3>
+          </div>
+          <div className="text-right">
+            <span className="text-2xl font-display font-extrabold text-neutral-900">
+              {level1Report.percentage}%
+            </span>
+            <span className="text-xs font-semibold text-neutral-500 block">Level 1 Progress</span>
+          </div>
+        </div>
+
+        {/* Level 1 Progress Bar */}
+        <div className="w-full h-2 bg-neutral-100 rounded-full overflow-hidden">
+          <div
+            className="h-full bg-emerald-500 rounded-full transition-all duration-700"
+            style={{ width: `${level1Report.percentage}%` }}
+          />
+        </div>
+
+        {/* 5 Topic Progress Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 pt-1">
+          {level1Report.topics.map((t) => (
+            <div
+              key={t.topicId}
+              className={`p-3.5 rounded-xl border ${
+                t.isCompleted
+                  ? 'bg-emerald-50/60 border-emerald-200'
+                  : t.percentage > 0
+                  ? 'bg-amber-50/50 border-amber-200'
+                  : 'bg-neutral-50/60 border-neutral-200'
+              }`}
+            >
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-500">
+                  {t.skill}
+                </span>
+                <span
+                  className={`text-xs font-mono font-bold ${
+                    t.isCompleted
+                      ? 'text-emerald-700'
+                      : t.percentage > 0
+                      ? 'text-amber-700'
+                      : 'text-neutral-500'
+                  }`}
+                >
+                  {t.percentage}%
+                </span>
+              </div>
+              <div className="text-xs font-bold text-neutral-900 truncate" title={t.topicName}>
+                {t.topicName}
+              </div>
+              <div className="text-[10px] text-neutral-500 mt-1">
+                {t.completedQuestions}/{t.totalQuestions} Questions Done
+              </div>
+              <div className="w-full h-1 bg-neutral-200 rounded-full overflow-hidden mt-2">
+                <div
+                  className="h-full bg-emerald-500 rounded-full transition-all duration-500"
+                  style={{ width: `${t.percentage}%` }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Real Completion Velocity & Log */}

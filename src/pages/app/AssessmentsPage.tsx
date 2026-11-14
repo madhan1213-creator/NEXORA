@@ -20,6 +20,7 @@ import { CompleteLearnerProfile } from '@/types';
 import { QUESTIONS_BANK } from '@/data/assessmentData';
 import { calculateNextAdaptiveDifficulty, evaluateAnswer } from '@/services/assessment/scoringEngine';
 import { recordAssessmentCompletion } from '@/services/learning/learnerService';
+import { recordMultipleQuestionCompletions } from '@/services/learning/progressCalculationService';
 
 import { AssessmentIntro } from '@/components/assessment/AssessmentIntro';
 import { AssessmentHeader } from '@/components/assessment/AssessmentHeader';
@@ -260,6 +261,13 @@ export const AssessmentsPage: React.FC = () => {
     };
 
     const result = await submitAndEvaluateSession(finalSession, profile);
+    // Record verified correct questions in authoritative progress calculation engine
+    const correctQuestionIds = (result.responses || [])
+      .filter((r) => r.isCorrect)
+      .map((r) => r.questionId);
+    if (correctQuestionIds.length > 0) {
+      recordMultipleQuestionCompletions(userId, correctQuestionIds);
+    }
     // Automatically record completion in learner progress and generate personalized roadmap
     recordAssessmentCompletion(userId, result, profile);
     setActiveResult(result);

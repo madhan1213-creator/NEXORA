@@ -27,9 +27,10 @@ import {
   getLearnerState,
   getLearnerRoadmap,
 } from '@/services/learning/learnerService';
+import { getLevel1ProgressBreakdown } from '@/services/learning/progressCalculationService';
 import { getLearnerProfile } from '@/services/onboarding/onboardingService';
 import { getLatestAssessmentResult } from '@/services/assessment/assessmentService';
-import { LearnerProgressState, PersonalizedRoadmap } from '@/types/learner';
+import { LearnerProgressState, PersonalizedRoadmap, LevelProgressReport } from '@/types/learner';
 import { CompleteLearnerProfile } from '@/types';
 import { AssessmentResult } from '@/types/assessment';
 
@@ -78,6 +79,7 @@ export const DashboardPage: React.FC = () => {
   const targetRole = profile?.careerGoal || user?.targetCareerId || 'Data Scientist';
   const isFreshUser = learnerState.overallProgress === 0 && learnerState.assessmentStatus === 'not_started';
   const isDemo = learnerState.isDemoAccount || false;
+  const level1Report = getLevel1ProgressBreakdown(learnerState?.completedQuestions || []);
 
   return (
     <div className="space-y-8 font-sans animate-fadeIn">
@@ -318,6 +320,86 @@ export const DashboardPage: React.FC = () => {
               </div>
             )}
           </div>
+        </div>
+      </div>
+
+      {/* 2.5 LEVEL 1 FOUNDATIONAL PROGRESS WIDGET */}
+      <div className="p-6 rounded-2xl bg-white border border-neutral-200/90 shadow-sm space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-neutral-100">
+          <div>
+            <div className="flex items-center gap-2">
+              <Badge variant="brand" className="font-mono text-[10px] uppercase">
+                Level 1 Curriculum
+              </Badge>
+              <span className="text-xs font-semibold text-neutral-500">
+                {level1Report.completedTopics} of {level1Report.totalTopics} Topics Mastered
+              </span>
+            </div>
+            <h3 className="font-bold text-neutral-900 text-lg mt-1">
+              Level 1: Foundations of Scientific Computing & Data
+            </h3>
+          </div>
+          <div className="text-right">
+            <span className="text-2xl font-display font-extrabold text-neutral-900">
+              {level1Report.percentage}%
+            </span>
+            <span className="text-xs font-semibold text-neutral-500 block">Level 1 Progress</span>
+          </div>
+        </div>
+
+        {/* Level 1 Weighted Progress Bar */}
+        <div className="w-full h-2.5 bg-neutral-100 rounded-full overflow-hidden">
+          <div
+            className="h-full bg-emerald-500 rounded-full transition-all duration-700"
+            style={{ width: `${level1Report.percentage}%` }}
+          />
+        </div>
+
+        {/* 5 Topic Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 pt-1">
+          {level1Report.topics.map((t) => (
+            <div
+              key={t.topicId}
+              className={`p-3 rounded-xl border transition-all ${
+                t.isCompleted
+                  ? 'bg-emerald-50/60 border-emerald-200'
+                  : t.percentage > 0
+                  ? 'bg-amber-50/50 border-amber-200'
+                  : 'bg-neutral-50/60 border-neutral-200'
+              }`}
+            >
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-500">
+                  {t.skill}
+                </span>
+                <span
+                  className={`text-xs font-mono font-bold ${
+                    t.isCompleted
+                      ? 'text-emerald-700'
+                      : t.percentage > 0
+                      ? 'text-amber-700'
+                      : 'text-neutral-500'
+                  }`}
+                >
+                  {t.percentage}%
+                </span>
+              </div>
+              <div className="text-xs font-bold text-neutral-900 truncate" title={t.topicName}>
+                {t.topicName}
+              </div>
+              <div className="text-[10px] text-neutral-500 mt-0.5">
+                {t.completedQuestions}/{t.totalQuestions} Questions Done
+              </div>
+              <div className="w-full h-1 bg-neutral-200 rounded-full overflow-hidden mt-2">
+                <div
+                  className={`h-full rounded-full transition-all duration-500 ${
+                    t.isCompleted ? 'bg-emerald-500' : 'bg-emerald-600'
+                  }`}
+                  style={{ width: `${t.percentage}%` }}
+                />
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 

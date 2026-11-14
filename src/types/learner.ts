@@ -9,12 +9,47 @@ export interface LearningActivityItem {
   details?: string;
 }
 
+export interface TopicProgressReport {
+  topicId: string;
+  topicName: string;
+  skill: string;
+  weight: number;
+  totalQuestions: number;
+  completedQuestions: number;
+  percentage: number;
+  isCompleted: boolean;
+}
+
+export interface LevelProgressReport {
+  levelId: string;
+  levelNumber: number;
+  title: string;
+  topics: TopicProgressReport[];
+  percentage: number;
+  isCompleted: boolean;
+  totalTopics: number;
+  completedTopics: number;
+}
+
+export interface CourseProgressReport {
+  courseId: string;
+  title: string;
+  percentage: number;
+  isCompleted: boolean;
+  completedLessonsCount: number;
+  totalLessonsCount: number;
+}
+
 export interface LearnerProgressState {
   userId: string;
   overallProgress: number; // 0 - 100 percentage
   completedCourses: string[]; // Course IDs
   completedLessons: string[]; // Lesson / Module IDs
   completedAssessments: string[]; // Assessment Result IDs
+  completedQuestions?: string[]; // Unique deduplicated question IDs completed
+  topicProgress?: Record<string, number>; // topicId -> percentage (0-100)
+  levelProgress?: Record<string, number>; // levelId -> percentage (0-100)
+  courseProgress?: Record<string, number>; // courseId -> percentage (0-100)
   assessmentStatus: 'not_started' | 'completed';
   roadmapStatus: 'not_generated' | 'generated';
   currentLevel: string | null;

@@ -19,6 +19,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { getLatestAssessmentResult } from '@/services/assessment/assessmentService';
 import { getLearnerProfile } from '@/services/onboarding/onboardingService';
 import { getLearnerState } from '@/services/learning/learnerService';
+import { getAllLevel1TopicReports, getLevel1ProgressBreakdown } from '@/services/learning/progressCalculationService';
 import { AssessmentResult } from '@/types/assessment';
 import { CompleteLearnerProfile } from '@/types';
 import { LearnerProgressState } from '@/types/learner';
@@ -180,35 +181,101 @@ export const SkillAnalysisPage: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-neutral-100">
-                  {assessmentResult.skillEstimates.map((s, idx) => (
-                    <tr key={idx} className="hover:bg-neutral-50 transition">
-                      <td className="py-3 px-4 font-bold text-neutral-900">{s.skill}</td>
-                      <td className="py-3 px-4 capitalize text-neutral-600">{s.selfReportedProficiency}</td>
-                      <td className="py-3 px-4 font-mono font-bold text-neutral-900">
-                        {s.demonstratedProficiency}%
-                      </td>
-                      <td className="py-3 px-4">
-                        <span className="font-semibold text-neutral-800 bg-neutral-100 px-2 py-0.5 rounded">
-                          {s.level}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4">
-                        <span
-                          className={`px-2 py-0.5 rounded text-[11px] font-semibold ${
-                            s.status === 'strong'
-                              ? 'bg-emerald-100 text-emerald-800'
-                              : s.status === 'weak'
-                              ? 'bg-rose-100 text-rose-800'
-                              : 'bg-neutral-100 text-neutral-700'
-                          }`}
-                        >
-                          {s.status === 'strong' ? 'Verified Strength' : s.status === 'weak' ? 'Needs Reinforcement' : 'Developing'}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
+                  {assessmentResult.skillEstimates.map((s, idx) => {
+                    const verifiedScore =
+                      learnerState?.skillProficiency[s.skill] !== undefined
+                        ? learnerState.skillProficiency[s.skill]
+                        : s.demonstratedProficiency;
+
+                    return (
+                      <tr key={idx} className="hover:bg-neutral-50 transition">
+                        <td className="py-3 px-4 font-bold text-neutral-900">{s.skill}</td>
+                        <td className="py-3 px-4 capitalize text-neutral-600">{s.selfReportedProficiency}</td>
+                        <td className="py-3 px-4 font-mono font-bold text-neutral-900">
+                          {verifiedScore}%
+                        </td>
+                        <td className="py-3 px-4">
+                          <span className="font-semibold text-neutral-800 bg-neutral-100 px-2 py-0.5 rounded">
+                            {verifiedScore >= 90 ? 'Advanced' : verifiedScore >= 70 ? 'Proficient' : verifiedScore >= 45 ? 'Developing' : 'Novice'}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4">
+                          <span
+                            className={`px-2 py-0.5 rounded text-[11px] font-semibold ${
+                              verifiedScore >= 70
+                                ? 'bg-emerald-100 text-emerald-800'
+                                : verifiedScore > 0
+                                ? 'bg-amber-100 text-amber-800'
+                                : 'bg-neutral-100 text-neutral-700'
+                            }`}
+                          >
+                            {verifiedScore >= 70 ? 'Verified Strength' : verifiedScore > 0 ? 'In Progress' : 'Not Started'}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
+            </div>
+          </div>
+
+          {/* Level 1 Curriculum Topic Mastery Table */}
+          <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-sm space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <h3 className="font-bold text-neutral-900 text-base">Level 1 Topic Competency Breakdown</h3>
+                <p className="text-xs text-neutral-500">
+                  Each topic has 10 required questions and 20% weight towards Level 1. Incomplete topics remain at their actual progress.
+                </p>
+              </div>
+              <span className="text-xs font-mono font-bold bg-neutral-100 px-3 py-1 rounded-full text-neutral-800">
+                Level 1: {getLevel1ProgressBreakdown(learnerState?.completedQuestions || []).percentage}%
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+              {getAllLevel1TopicReports(learnerState?.completedQuestions || []).map((t) => (
+                <div
+                  key={t.topicId}
+                  className={`p-3.5 rounded-xl border ${
+                    t.isCompleted
+                      ? 'bg-emerald-50/60 border-emerald-200'
+                      : t.percentage > 0
+                      ? 'bg-amber-50/50 border-amber-200'
+                      : 'bg-neutral-50/60 border-neutral-200'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-500">
+                      {t.skill}
+                    </span>
+                    <span
+                      className={`text-xs font-mono font-bold ${
+                        t.isCompleted
+                          ? 'text-emerald-700'
+                          : t.percentage > 0
+                          ? 'text-amber-700'
+                          : 'text-neutral-500'
+                      }`}
+                    >
+                      {t.percentage}%
+                    </span>
+                  </div>
+                  <div className="text-xs font-bold text-neutral-900 truncate" title={t.topicName}>
+                    {t.topicName}
+                  </div>
+                  <div className="text-[10px] text-neutral-500 mt-1">
+                    {t.completedQuestions}/{t.totalQuestions} Questions Done
+                  </div>
+                  <div className="w-full h-1 bg-neutral-200 rounded-full overflow-hidden mt-2">
+                    <div
+                      className="h-full bg-emerald-500 rounded-full transition-all duration-500"
+                      style={{ width: `${t.percentage}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 

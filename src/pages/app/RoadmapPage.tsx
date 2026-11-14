@@ -249,33 +249,54 @@ export const RoadmapPage: React.FC = () => {
                   </div>
 
                   <div className="grid grid-cols-1 gap-3">
-                    {phase.courses.map((course) => (
-                      <div
-                        key={course.id}
-                        className="p-4 rounded-xl border border-neutral-200/80 bg-white hover:border-neutral-300 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3"
-                      >
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold text-neutral-900">{course.title}</span>
-                            <span className="text-[10px] font-semibold uppercase px-2 py-0.5 rounded bg-neutral-100 text-neutral-600">
-                              {course.difficulty}
-                            </span>
-                          </div>
-                          <p className="text-xs text-neutral-500 line-clamp-1">{course.description}</p>
-                          <div className="text-[11px] text-neutral-400">
-                            {course.lessons.length} lessons • ~{course.estimatedHours} hours
-                          </div>
-                        </div>
+                    {phase.courses.map((course) => {
+                      const courseDoneLessons = course.lessons.filter((l) =>
+                        learnerState?.completedLessons.includes(l.id)
+                      ).length;
+                      const coursePct =
+                        course.lessons.length > 0
+                          ? Math.round((courseDoneLessons / course.lessons.length) * 100)
+                          : 0;
 
-                        <Link
-                          to={`/app/courses/${course.id}`}
-                          className="px-4 py-2 bg-neutral-900 hover:bg-black text-white text-xs font-semibold rounded-xl transition inline-flex items-center justify-center gap-1.5 shrink-0 self-end sm:self-auto"
+                      return (
+                        <div
+                          key={course.id}
+                          className="p-4 rounded-xl border border-neutral-200/80 bg-white hover:border-neutral-300 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3"
                         >
-                          <span>Open Module</span>
-                          <ArrowRight className="w-3.5 h-3.5" />
-                        </Link>
-                      </div>
-                    ))}
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-bold text-neutral-900">{course.title}</span>
+                              <span className="text-[10px] font-semibold uppercase px-2 py-0.5 rounded bg-neutral-100 text-neutral-600">
+                                {course.difficulty}
+                              </span>
+                              <span
+                                className={`text-[10px] font-mono font-semibold px-2 py-0.5 rounded ${
+                                  coursePct === 100
+                                    ? 'bg-emerald-100 text-emerald-800'
+                                    : coursePct > 0
+                                    ? 'bg-amber-100 text-amber-800'
+                                    : 'bg-neutral-100 text-neutral-500'
+                                }`}
+                              >
+                                {coursePct}% Complete
+                              </span>
+                            </div>
+                            <p className="text-xs text-neutral-500 line-clamp-1">{course.description}</p>
+                            <div className="text-[11px] text-neutral-400">
+                              {courseDoneLessons}/{course.lessons.length} lessons done • ~{course.estimatedHours} hours
+                            </div>
+                          </div>
+
+                          <Link
+                            to={`/app/courses/${course.id}`}
+                            className="px-4 py-2 bg-neutral-900 hover:bg-black text-white text-xs font-semibold rounded-xl transition inline-flex items-center justify-center gap-1.5 shrink-0 self-end sm:self-auto"
+                          >
+                            <span>Open Module</span>
+                            <ArrowRight className="w-3.5 h-3.5" />
+                          </Link>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               </Card>

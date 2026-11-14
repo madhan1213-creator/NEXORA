@@ -70,6 +70,16 @@ export async function resetTestAccountData(user: User): Promise<ResetAccountSumm
   freshState.completedCourses = [];
   freshState.completedLessons = [];
   freshState.completedAssessments = [];
+  freshState.completedQuestions = [];
+  freshState.topicProgress = {
+    python: 0,
+    numpy: 0,
+    pandas: 0,
+    statistics: 0,
+    sql: 0,
+  };
+  freshState.levelProgress = { 'lvl-1': 0 };
+  freshState.courseProgress = {};
   freshState.assessmentStatus = 'not_started';
   freshState.roadmapStatus = 'not_generated';
   freshState.hoursLogged = 0;
