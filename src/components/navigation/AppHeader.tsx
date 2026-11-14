@@ -134,7 +134,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ onOpenMobileMenu }) => {
         )}
 
         {/* Quick Launch Sandbox button */}
-        <Link to="/app/code-challenge/challenge-attention-head" className="hidden lg:block">
+        <Link to="/app/code-challenge/challenge-python-basics" className="hidden lg:block">
           <Button
             variant="outline"
             size="sm"

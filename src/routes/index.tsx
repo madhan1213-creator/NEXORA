@@ -77,6 +77,7 @@ export const AppRoutes: React.FC = () => {
           <Route path="courses/:courseId" element={<CourseDetailPage />} />
           <Route path="courses/:courseId/levels/:levelId" element={<CourseLevelDetailPage />} />
           <Route path="assessments" element={<AssessmentsPage />} />
+          <Route path="code-challenge" element={<Navigate to="/app/code-challenge/challenge-python-basics" replace />} />
           <Route path="code-challenge/:challengeId" element={<CodeChallengePage />} />
           <Route path="ai-mentor" element={<AiMentorPage />} />
           <Route path="progress" element={<ProgressPage />} />

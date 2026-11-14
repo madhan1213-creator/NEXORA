@@ -49,7 +49,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({ onCloseMobile }) => {
         { label: 'Assessments', path: '/app/assessments', icon: CheckSquare },
         {
           label: 'Code IDE Sandbox',
-          path: '/app/code-challenge/challenge-attention-head',
+          path: '/app/code-challenge/challenge-python-basics',
           icon: Terminal,
           badge: 'Live',
         },

@@ -5,3 +5,5 @@
  */
 export * from '@/types';
 export { mockCodingChallenge } from '@/data/mockData';
+export * from '@/data/codingChallenges';
+export { CodeEditor } from '@/components/coding/CodeEditor';
