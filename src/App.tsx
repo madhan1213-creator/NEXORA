@@ -10,7 +10,7 @@ export const App: React.FC = () => {
       <AuthProvider>
         <AppRoutes />
         {/* Floating temporary dev auth switcher for routing verification */}
-        <DevAuthSwitcher />
+        {import.meta.env.DEV && <DevAuthSwitcher />}
       </AuthProvider>
     </BrowserRouter>
   );

@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, AuthStatus, CompleteLearnerProfile } from '@/types';
 import { supabase, isSupabaseConfigured } from './supabaseClient';
 import { getLearnerProfile } from '@/services/onboarding/onboardingService';
+import { resetTestAccountData } from './resetAccountService';
 
 interface SignUpParams {
   email: string;
@@ -23,6 +24,8 @@ interface AuthContextType {
   login: (params: LoginParams) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
   completeOnboardingSession: (profile: CompleteLearnerProfile) => Promise<void>;
+  // Development reset option for active test account
+  resetCurrentAccountToFreshState: () => Promise<void>;
   // Dev simulation helpers for testing and quick inspection
   loginAs: (type: 'complete' | 'incomplete') => void;
 }
@@ -398,6 +401,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setStatus('authenticated_complete');
   };
 
+  // Reset Current Test Account to Fresh State (First-Time User Test)
+  const resetCurrentAccountToFreshState = async () => {
+    if (!user) return;
+    setIsLoading(true);
+
+    try {
+      await resetTestAccountData(user);
+
+      const freshUser: User = {
+        ...user,
+        isProfileComplete: false,
+        targetCareerId: undefined,
+        updatedAt: new Date().toISOString(),
+      };
+
+      if (!isSupabaseConfigured) {
+        localStorage.setItem(STORAGE_SESSION_KEY, JSON.stringify(freshUser));
+      }
+
+      setUser(freshUser);
+      setStatus('authenticated_incomplete');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Direct dev switchers
   const loginAs = (type: 'complete' | 'incomplete') => {
     if (type === 'complete') {
@@ -420,6 +449,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         login,
         logout,
         completeOnboardingSession,
+        resetCurrentAccountToFreshState,
         loginAs,
       }}
     >
