@@ -83,7 +83,7 @@ export const PublicNavbar: React.FC = () => {
                   leftIcon={<Sparkles className="w-3.5 h-3.5 text-neutral-950" />}
                   className="shadow-sm font-semibold"
                 >
-                  Get Started Free
+                  Sign Up
                 </Button>
               </Link>
             </>
@@ -149,7 +149,7 @@ export const PublicNavbar: React.FC = () => {
                   </Link>
                   <Link to="/signup" onClick={() => setMobileMenuOpen(false)}>
                     <Button variant="primary" className="w-full">
-                      Get Started Free
+                      Sign Up
                     </Button>
                   </Link>
                 </>

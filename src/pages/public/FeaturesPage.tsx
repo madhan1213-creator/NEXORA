@@ -91,7 +91,7 @@ export const FeaturesPage: React.FC = () => {
         <div className="flex flex-col sm:flex-row justify-center gap-4">
           <Link to="/signup">
             <Button variant="primary" size="lg">
-              Get Started Free
+              Sign Up
             </Button>
           </Link>
           <Link to="/app/dashboard">

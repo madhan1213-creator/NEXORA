@@ -185,7 +185,7 @@ export const HomePage: React.FC = () => {
                 rightIcon={<ArrowRight className="w-4 h-4" />}
                 className="w-full sm:w-auto shadow-electric font-semibold text-base px-8 h-12"
               >
-                Build My Learning Path
+                Sign Up
               </Button>
             </Link>
             <Link to="/careers" className="w-full sm:w-auto">
@@ -1211,7 +1211,7 @@ export const HomePage: React.FC = () => {
                 rightIcon={<ArrowRight className="w-4 h-4" />}
                 className="w-full sm:w-auto font-bold text-base px-8 h-12 shadow-electric"
               >
-                Build My Learning Path
+                Sign Up
               </Button>
             </Link>
             <Link to="/careers" className="w-full sm:w-auto">

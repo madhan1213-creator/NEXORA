@@ -50,6 +50,11 @@ export const PublicFooter: React.FC = () => {
                   Curriculum Catalog
                 </Link>
               </li>
+              <li>
+                <Link to="/signup" className="hover:text-brand-400 transition-colors">
+                  Sign Up
+                </Link>
+              </li>
             </ul>
           </div>
 
